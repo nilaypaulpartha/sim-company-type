@@ -1,0 +1,826 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include<string.h>
+#include<time.h>
+void unused_data2(char data[])
+{
+    FILE *original_file=fopen("data_statistics_available.txt","r");
+    FILE *temp_file=fopen("data_statistics_temp.txt","w");
+    if(original_file==NULL)
+    {
+        original_file=fopen("data_statistics_available.txt","w");
+        fclose(original_file);
+        original_file=fopen("data_statistics_available.txt","r");
+    }
+    char line[10000];
+    int taka=+1;
+
+    while(fgets(line,sizeof(line),original_file))
+    {
+        char money[100];
+        char no[100];
+        if(sscanf(line,"%99s %99s",money,no)==2)
+        {
+            if(!strcmp(money,data))
+            {
+                taka+=atoi(no);
+                continue;
+            }
+            else if(!strcmp(line," "))continue;
+
+        }
+        fprintf(temp_file,line);
+
+
+
+    }
+    char string_num[10000];
+    snprintf(string_num, sizeof(string_num), "%d", taka);
+    fprintf(temp_file,"%s %s\n",data,string_num);
+    fclose(original_file);
+    fclose(temp_file);
+
+    remove("data_statistics_available.txt");
+    rename("data_statistics_temp.txt","data_statistics_available.txt");
+
+
+
+
+}
+void unused_card(char data[])
+{
+    FILE *original_file=fopen("data_statistics_available.txt","r");
+    FILE *temp_file=fopen("data_statistics_temp.txt","w");
+    if(original_file==NULL)
+    {
+        original_file=fopen("data_statistics_available.txt","w");
+        fclose(original_file);
+        original_file=fopen("data_statistics_available.txt","r");
+    }
+    char line[10000];
+    int taka=-1;
+
+    while(fgets(line,sizeof(line),original_file))
+    {
+        char money[100];
+        char no[100];
+        if(sscanf(line,"%99s %99s",money,no)==2)
+        {
+            if(!strcmp(money,data))
+            {
+                taka+=atoi(no);
+                continue;
+            }
+            else if(!strcmp(line," "))continue;
+
+        }
+        fprintf(temp_file,line);
+
+
+
+    }
+    char string_num[10000];
+    snprintf(string_num, sizeof(string_num), "%d", taka);
+    fprintf(temp_file,"%s %s\n",data,string_num);
+    fclose(original_file);
+    fclose(temp_file);
+
+    remove("data_statistics_available.txt");
+    rename("data_statistics_temp.txt","data_statistics_available.txt");
+
+
+
+
+}
+void statistics()//showing statistics
+{
+    printf("Used Card list: ");
+    FILE *file=fopen("data_statistics_used.txt","r");
+    char data[100];
+    printf("\n");
+    while(fgets(data,100,file))
+    {
+        char taka[100];
+        char time[100];
+        sscanf(data,"%99s %99s",taka,time);
+        printf("                %s Minutes: %s times\n",taka,time);
+    }
+    fclose(file);
+    printf("\nAvailable list:\n");
+    file=fopen("data_statistics_available.txt","r");
+    printf("\n");
+    while(fgets(data,100,file))
+    {
+        char no[100];
+        char taka[100];
+        sscanf(data,"%99s %99s",taka,no);
+        printf("                %s Minutes card is available: %s \n",taka,no);
+    }
+    fclose(file);
+    file=fopen("data_statistics_totalbalance.txt","r");
+
+    printf("\n");
+    while(fgets(data,100,file))
+    {
+        char taka[100];
+        sscanf(data,"%99s",taka);
+        printf("\nTotal earn %s taka\n",taka);
+    }
+    fclose(file);
+
+
+}
+int is_exist(char data[], char location[])//is exist in address
+{
+    char line[100];
+
+    FILE *file = fopen(location, "r");
+    if (file == NULL)
+    {
+        file = fopen(location, "w");
+        fclose(file);
+    }
+
+    while (fgets(line, sizeof(line), file))
+    {
+        char mobile[100];
+
+        if (sscanf(line, "%99s", mobile) == 1)
+        {
+            for (int i = 0; mobile[i] != '\0'; i++)
+            {
+                if (mobile[i] == ' ')
+                {
+
+                    mobile[i] = '\0';
+                    break;
+                }
+            }
+            size_t data_len = strlen(data);
+            size_t mobile_len = strlen(mobile);
+            size_t min_len = data_len < mobile_len ? data_len : mobile_len;
+            if (strncmp(data, mobile, min_len) == 0)
+            {
+                fclose(file);
+                return 1;
+            }
+        }
+
+    }
+
+    fclose(file);
+    return 0;
+}
+
+void unblock_user_list(){//unblock list
+     char filename[100] = "data_lockmobileno.txt";
+    char line[100];
+    FILE *original_file = fopen(filename, "r");
+    if(original_file == NULL) {
+        original_file = fopen(filename, "w");
+        fclose(original_file);
+        original_file = fopen(filename, "r");
+    }
+
+
+    while (fgets(line, sizeof(line), original_file)) {
+       printf("\t\t\t%s",line);
+    }
+    printf("\n\n");
+    fclose(original_file);
+}
+int unblock_user(char card_number[])//unblocking card
+{
+    int cnt=0;
+    char filename[100] = "data_lockmobileno.txt";
+    char temp_filename[100] = "data_temp.txt";
+    char line[100];
+    card_number[strcspn(card_number,"\n")] = 0;
+    card_number[strcspn(card_number," ")] = 0;
+    FILE *original_file = fopen(filename, "r");
+    FILE *temp_file = fopen(temp_filename, "w");
+
+
+    while (fgets(line, sizeof(line), original_file)) {
+        char current_card[100];
+        if (sscanf(line, "%11s", current_card)) {
+            current_card[strcspn(current_card, "\n")] = 0;
+            current_card[strcspn(current_card, " ")] = 0;
+            if (!strcmp(current_card, card_number)) {
+                    cnt=1;
+                    continue;}
+
+        }
+        fputs(line, temp_file);
+    }
+
+    fclose(original_file);
+    fclose(temp_file);
+    remove(filename);
+    rename(temp_filename, filename);
+    return cnt;
+
+}
+void newcard_generetor()//new card generator
+{
+    srand(time(NULL));
+    int n,choice;
+    printf("Available package: \n");
+    printf("\t1. 40 min 50 taka\n");
+    printf("\t2. 60 min 70 taka\n");
+    printf("\t3. 100 min 120 taka\n");
+    printf("\tHow many cards and choose a number: ");
+    scanf("%d %d",&n,&choice/*taka*/);
+    char taka[100]="";
+    if(choice==1){
+        strcat(taka,"40");
+    }
+    else if(choice==2){
+        strcat(taka,"60");
+    }
+    else if(choice==3){
+        strcat(taka,"100");
+    }
+    else{
+        printf("Wrong submission---->returning admin panel");
+        return;
+    }
+    for(int i=0; i<n; i++)
+    {
+
+        unused_data2(taka);
+        char fullfilename[200]="data_validcard.txt";
+        char card[21];//creating random character 13-17code
+        for(int i=0; i<20; i++)
+        {
+            card[i]='0'+(rand()%10);
+        }
+        card[20]='\0';
+        FILE *f1 = fopen(fullfilename, "a");
+        if(f1==NULL)
+        {
+            FILE *f2 = fopen(fullfilename, "W");
+            fprintf(f2,"%s %s\n",card,taka);
+            fclose(f2);
+        }
+        else
+        {
+            fprintf(f1,"%s %s\n",card,taka);
+            fclose(f1);
+        }
+    }
+    printf("%d Cards Creation Successful \n ",n);
+}
+int remove_card(char card_number[])//removing card
+{
+    char filename[100] = "data_validcard.txt";
+    char temp_filename[100];
+    char line[100];
+    int card_found = 0;
+    int changes_made = 0;
+    snprintf(temp_filename, 100, "%s.temp", filename);
+    card_number[strcspn(card_number, "\n")] = 0;
+    FILE *original_file = fopen(filename, "r");
+    FILE *temp_file = fopen(temp_filename, "w");
+    while (fgets(line, 100, original_file))
+    {
+        char current_card[100];
+        char taka[100];
+        if (sscanf(line, "%31s %99s", current_card, taka) == 2)
+        {
+            if (strcmp(current_card, card_number) == 0)
+            {
+                card_found = 1;
+                changes_made = 1;
+                continue;
+            }
+        }
+        fputs(line, temp_file);
+    }
+    fclose(original_file);
+    fclose(temp_file);
+    if (changes_made)
+    {
+        if (remove(filename) != 0)
+        {
+            return 1;
+        }
+        if (rename(temp_filename, filename) != 0)
+        {
+            return 1;
+        }
+        return 1;
+
+    }
+    else
+    {
+        if (remove(filename) != 0)
+        {
+            return 1;
+        }
+        if (rename(temp_filename, filename) != 0)
+        {
+            return 1;
+        }
+        return 0;
+    }
+}
+
+
+char* validcardmoney(char cardno[])//card money
+{
+    FILE *file=fopen("data_validcard.txt","r");
+    char data[100];
+    while(fgets(data,100,file))
+    {
+        char current_card[100];
+        char taka[100];
+        sscanf(data,"%99s %99s",current_card,taka);
+        if(!strcmp(current_card,cardno))return strdup(taka);
+    }
+    fclose(file);
+    return NULL;
+}
+void total_profit(char data[])//total profit
+{
+    char taka[100] = "";  // Initialize to empty string
+    if(!strcmp(data,"40")){
+        strcat(taka,"50");
+    }
+    if(!strcmp(data,"60")){
+        strcat(taka,"70");
+    }
+    if(!strcmp(data,"100")){
+        strcat(taka,"120");
+    }
+
+    FILE *original_file=fopen("data_statistics_totalbalance.txt","r");
+    FILE *temp_file=fopen("data_statistics_temp.txt","w");
+    char line[100];
+    if(original_file==NULL)
+    {
+        original_file=fopen("data_statistics_totalbalance.txt","w");
+        fprintf(original_file,"0");
+        fclose(original_file);
+        original_file=fopen("data_statistics_totalbalance.txt","r");
+    }
+    while(fgets(line,sizeof(line),original_file))
+    {
+        int sum=atoi(line)+atoi(taka);
+        char string_num[12];
+        snprintf(string_num, sizeof(string_num), "%d", sum);
+        fprintf(temp_file,"%s",string_num);
+    }
+    fclose(original_file);
+    fclose(temp_file);
+
+    remove("data_statistics_totalbalance.txt");
+    rename("data_statistics_temp.txt","data_statistics_totalbalance.txt");
+}
+void user_current_balance_updater(char number[],char taka[])//user current balance updator
+{
+    char add[100]="data_statistics_useramount_";
+    strcat(add,number);
+    strcat(add,".txt");
+    FILE *original_file=fopen(add,"r");
+    FILE *temp_file=fopen("data_statistics_useramount_temp.txt","w");
+    if(original_file==NULL)
+    {
+        original_file=fopen(add,"w");
+        fprintf( original_file,"0");
+        fclose(original_file);
+        original_file=fopen(add,"r");
+    }
+    char line[100];
+    while(fgets(line,100,original_file))
+    {
+        int sum=atoi(line)+atoi(taka);
+        char string_num[12];
+        snprintf(string_num, sizeof(string_num), "%d", sum);
+        fprintf(temp_file,string_num);
+    }
+    fclose(original_file);
+    fclose(temp_file);
+    remove(add);
+    rename("data_statistics_useramount_temp.txt",add);
+}
+
+void used_card(char data[])//used card number
+{
+    FILE *original_file=fopen("data_statistics_used.txt","r");
+    FILE *temp_file=fopen("data_statistics_temp.txt","w");
+    if(original_file==NULL)
+    {
+        original_file=fopen("data_statistics_used.txt","w");
+        fclose(original_file);
+        original_file=fopen("data_statistics_used.txt","r");
+    }
+    char line[10000];
+    int taka=1;
+
+    while(fgets(line,sizeof(line),original_file))
+    {
+        char money[100];
+        char no[100];
+        if(sscanf(line,"%99s %99s",money,no)==2)
+        {
+            if(!strcmp(money,data))
+            {
+                taka+=atoi(no);
+                continue;
+            }
+            else if(!strcmp(line," "))continue;
+
+        }
+        fprintf(temp_file,line);
+
+
+
+    }
+    char string_num[10000];
+    snprintf(string_num, sizeof(string_num), "%d", taka);
+    fprintf(temp_file,"%s %s\n",data,string_num);
+    fclose(original_file);
+    fclose(temp_file);
+
+    remove("data_statistics_used.txt");
+    rename("data_statistics_temp.txt","data_statistics_used.txt");
+
+
+
+}
+void dynamic_data_updater(char data[],char number[])//data auto updatoer
+{
+    total_profit(data);
+    user_current_balance_updater(number,data);
+    used_card(data);
+    unused_card(data);
+
+}
+char* cardno_money(char cardno[])//money of card
+{
+    FILE *file=fopen("data_validcard.txt","r");
+    char data[100];
+    while(fgets(data,100,file))
+    {
+        char current_card[100];
+        char taka[100];
+        sscanf(data,"%99s %99s",current_card,taka);
+        if(!strcmp(current_card,cardno))
+        {
+            fclose(file);
+            return strdup(taka);
+        }
+    }
+    fclose(file);
+    return NULL;
+}
+void full_time_history(char cardno[],char moneey[],char mobileno[])//all history save
+{
+    FILE *file = fopen("data_history.txt", "r");
+    time_t rawtime;
+    struct tm *timeinfo;
+    char buffer[80];
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d\t%H:%M:%S", timeinfo);
+    if (file == NULL)
+    {
+        FILE *file = fopen("data_history.txt", "w");
+        fprintf(file,"	Card No		   Date		  Time	      Minute     mobile no");
+        fclose(file);
+    }
+    file = fopen("data_history.txt", "a");
+    fprintf(file, "\n%s\t%s\t%s\t%s",cardno,buffer,moneey,mobileno);
+    fclose(file);
+    return 0;
+}
+void user_full_time_history(char cardno[],char mobileno[])//all history of user saved in user profile
+{
+    time_t rawtime;
+    struct tm *timeinfo;
+    char buffer[80];
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d\t%H:%M:%S", timeinfo);
+    char data[100]="data_search_";
+    strcat(data,mobileno);
+    strcat(data,".txt");
+    FILE *file = fopen(data, "r");
+    if (file == NULL)
+    {
+        FILE *file = fopen(data, "w");
+        fprintf(file,"	Card No		   Date		  Time	      Minute  ");
+        fclose(file);
+    }
+    file = fopen(data, "a");
+    fprintf(file, "\n%s\t%s\t%s",cardno,buffer,cardno_money(cardno));
+    fclose(file);
+    return 0;
+
+
+}
+
+
+void user_panel()//user panel
+{
+    while(1)
+    {
+        char mobileno[100];
+        char cardno[100];
+        char line[100];
+        printf("Enter your mobile number or enter 0 for exit: ");
+        scanf("%s",mobileno);
+        mobileno[strcspn(mobileno, "\n")] = 0;
+        char blocklocation[100]="data_lockmobileno.txt";
+        FILE *block_file = fopen(blocklocation, "r");
+        if(!strcmp("0",mobileno)){
+           printf("\n");
+           break;
+           }
+        if(strlen(mobileno)!=11)
+        {
+            printf("\nEnter a valid mobile no.\n");
+        }
+        else if(is_exist(mobileno,blocklocation))
+        {
+            printf("\n\nYOU are a blocked user\n\n");
+        }
+        else
+        {
+            while(1)
+            {
+                if(is_exist(mobileno,blocklocation))
+        {
+            printf("\n\nYOU are a blocked user\n\n");
+            break;
+        }
+                int n;
+                printf("\nchoose a option\n\t1.Balance\n\t2.Recharge\n\t3.logout\n\tEnter a valid digit: ");
+                scanf("%d",&n);
+                if(n==1)
+                {
+                    char address[100] = "data_statistics_useramount_";
+                    strcat(address, mobileno);
+                    address[strcspn(address, "\n")] = 0;
+                    strcat(address, ".txt");
+                    FILE *file = fopen(address, "r");
+                    if (file == NULL)
+                    {
+                        file = fopen(address, "w");
+                        if (file != NULL)
+                        {
+                            fprintf(file, "0");
+                            fclose(file);
+                            file = fopen(address, "r");
+                        }
+                    }
+                    if (file != NULL)
+                    {
+                        char line[100];
+                        if (fgets(line, 100, file))
+                        {
+                            line[strcspn(line, "\n")] = 0;
+                            printf("Your total Balance is %s minutes\n", line);
+                        }
+                        fclose(file);
+                    }
+                }
+                else if(n==2)
+            {
+                int t=3;
+                int flag=1;
+                while(t--)
+                {
+                    printf("Enter Your card no: ");
+                    scanf("%s",cardno);
+                    if(strlen(cardno)!=20){
+                        printf("Enter a valid card no...\n");
+                    }
+                    else if (is_exist(cardno, "data_validcard.txt"))
+                    {
+                        for(int i=0; i<strlen(cardno); i++)
+                        {
+                            if(cardno[i]=='\n')cardno[i]='\0';
+                        }
+                        for(int i=0; i<strlen(mobileno); i++)
+                        {
+                            if(mobileno[i]=='\n')mobileno[i]='\0';
+                        }
+
+                        dynamic_data_updater(cardno_money(cardno),mobileno);
+                        full_time_history(cardno,cardno_money(cardno),mobileno);
+                        user_full_time_history(cardno,mobileno);
+
+                        printf("%s minutes recharge successful\n",cardno_money(cardno));
+                        remove_card(cardno);
+
+                        flag=0;
+                        break;
+                    }
+
+                    printf("You have only %d attempts left\n",t);
+                }
+                if(flag)
+                {
+
+                    FILE *file = fopen("data_lockmobileno.txt", "a");
+                    fprintf(file, "\n%s", mobileno);
+                    printf("\n\nYou have been blocked.\n\n");
+                    fclose(file);
+                    break;
+                }
+            }
+                else if(n==3)
+                {
+                    return 0;
+                }
+                else
+                {
+                    printf("\nEnter a valld digit!!!\n\n");
+                }
+            }
+        }
+    }
+
+
+}
+void admin_panel()//admin panel
+{
+    srand(time(NULL));
+    printf("Welcome to the Admin Panel: \n");
+    while(1)
+    {
+        printf("\n\t1. Generate new Card\n");
+        printf("\t2. Delete Card\n");
+        printf("\t3. Unblock mobile number\n");
+        printf("\t4. History\n");
+        printf("\t5. Statistics\n");
+        printf("\t6. search\n");
+        printf("\t7. Exit\n");
+        printf("\t Enter your option: ");
+        int option;
+        scanf("%d",&option);
+        if(option==1)
+        {
+            newcard_generetor();
+        }
+        else if(option==2)
+        {
+            char data[100];
+            printf("Enter card no: ");
+            scanf("%s",data);
+            if(remove_card(data))
+            {
+                printf("Card %s was found and deleted.\n",data);
+            }
+            else
+            {
+                printf("Card %s was invalid!!!!!.\n", data);
+            }
+        }
+        else if(option==3)
+        {
+            while(1){
+            printf("Choose a option: \n");
+            printf("\t1.showing block user:\n");
+            printf("\t2.unblock user\n");
+            printf("\t3.exit\n");
+              printf("\tEnter a VAlid digit: ");
+            int x;
+            scanf("%d",&x);
+            if(x==3)return;
+            else if(x==1){
+                    printf("Block users list:\n");
+                unblock_user_list();
+            }
+            else if(x!=2){
+                printf("\nEnter a valid digit!!!1\n");
+            }
+            else{
+            printf("Enter the mobile no: ");
+            char mobile_no[100];
+            scanf("%s", mobile_no);
+            if(unblock_user(mobile_no))
+            {
+
+                printf("%s unblock successful.\n",mobile_no);
+            }
+            else
+            {
+                printf("%s is not a block user..\n",mobile_no);
+
+            }
+            }}
+
+        }
+        else if(option==4)
+        {
+
+            FILE *file = fopen("data_history.txt", "r");
+            char line[100];
+             if (file == NULL)
+    {
+        file = fopen("data_history.txt", "w");
+        fprintf(file,"	Card No		   Date		  Time	      Minute     mobile no");
+        fclose(file);
+        file = fopen("data_history.txt", "r");
+
+    }
+            while (fgets(line, sizeof(line), file))
+            {
+                printf("%s",line);
+            }
+        }
+        else if(option==5)statistics();
+        else if(option==6)
+        {
+            printf("Enter the mobile no: ");
+            char mobileno[100];
+            scanf("%s",mobileno);
+            if(strlen(mobileno)==11)
+            {
+                char data[100] = "data_search_";
+                strcat(data, mobileno);
+                strcat(data, ".txt");
+                FILE *file = fopen(data, "r");
+                if (file == NULL)
+                {
+                    file = fopen(data, "w");
+                    fprintf(file, "	Card No		   Date		  Time	      Minute  ");
+                    fclose(file);
+                    file = fopen(data, "r");
+                }
+                char line[100];
+                while (fgets(line, sizeof(line), file))
+                {
+                    printf("%s",line);
+                }
+                fclose(file);
+
+            }
+            else
+            {
+                printf("Enter a valid mobile number!!!");
+            }
+
+        }
+        else if(option==7)return 0;
+        else
+        {
+            printf("\nPlease Enter a valid number!!!\n\n");
+
+        }
+
+    }
+}
+int main()//main menu
+{
+    while(1)
+    {
+        printf("Select Option\n");
+        printf("\t1.Admin panel\n");
+        printf("\t2.User panel\n");
+        printf("\t3.Exit\n");
+        printf("\tEnter a digit:  ");
+        int option;
+        scanf("%d",&option);
+        if(option==1)
+        {
+            int t=3;
+            while(t--)
+            {
+                printf("Enter Your Admin panel password(2403160) : ");
+                int password;
+                int flag=0;
+                scanf("%d",&password);
+                if(password==2403160)
+                {
+                    admin_panel();
+                    flag=1;
+
+                }
+                else
+                {
+                    printf("Wrong password. You have %d attempts remaining.\n",t);
+
+
+                }
+                if(flag)break ;
+            }
+        }
+        else if(option==2)
+        {
+            user_panel();
+        }
+        else if(option==3)return 0;
+        else
+        {
+            printf("\nEnter a valid number!!!\n\n");
+        }
+
+
+    }
+
+}
+
