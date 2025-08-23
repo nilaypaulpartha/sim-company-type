@@ -292,6 +292,7 @@ int remove_card(char card_number[])//removing card
             {
                 card_found = 1;
                 changes_made = 1;
+                unused_card(taka);
                 continue;
             }
         }
@@ -309,6 +310,7 @@ int remove_card(char card_number[])//removing card
         {
             return 1;
         }
+
         return 1;
 
     }
@@ -454,7 +456,7 @@ void dynamic_data_updater(char data[],char number[])//data auto updatoer
     total_profit(data);
     user_current_balance_updater(number,data);
     used_card(data);
-    unused_card(data);
+
 
 }
 char* cardno_money(char cardno[])//money of card
@@ -533,7 +535,7 @@ void user_panel()//user panel
         scanf("%s",mobileno);
         mobileno[strcspn(mobileno, "\n")] = 0;
         char blocklocation[100]="data_lockmobileno.txt";
-        FILE *block_file = fopen(blocklocation, "r");
+
         if(!strcmp("0",mobileno)){
            printf("\n");
            break;
@@ -625,7 +627,7 @@ void user_panel()//user panel
                 {
 
                     FILE *file = fopen("data_lockmobileno.txt", "a");
-                    fprintf(file, "\n%s", mobileno);
+                    fprintf(file, "%s \n", mobileno);
                     printf("\n\nYou have been blocked.\n\n");
                     fclose(file);
                     break;
@@ -823,4 +825,3 @@ int main()//main menu
     }
 
 }
-
