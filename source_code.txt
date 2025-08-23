@@ -780,6 +780,7 @@ int main()//main menu
 {
     while(1)
     {
+        printf("Prepared by Nilay Paul Partha(Roll:2403160)\n\n");
         printf("Select Option\n");
         printf("\t1.Admin panel\n");
         printf("\t2.User panel\n");
